@@ -23,3 +23,7 @@ This controller returns the current weather.
 It exposes two endpoints:
 /realtime-weather - returns the current weather for Hamburg and Gliwice simultaneously,
 /realtime-weather/{cityName} - returns the current weather for the given city.
+
+### Database integration
+
+The application saves the respones of the weather api to an in memory database. This is done purely as a showcase - the entities are much simpler compared to the models they are supposed to represent and data isn't being read from the database.
