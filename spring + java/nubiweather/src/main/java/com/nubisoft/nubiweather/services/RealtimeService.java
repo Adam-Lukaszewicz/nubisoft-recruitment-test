@@ -10,4 +10,6 @@ import java.util.Map;
 @Component
 public interface RealtimeService {
     Map<String, CurrentWeather> getCurrentWeatherForHamburgAndGliwice();
+
+    ResponseEntity<CurrentWeather> getCurrentWeatherForCity(String cityName);
 }

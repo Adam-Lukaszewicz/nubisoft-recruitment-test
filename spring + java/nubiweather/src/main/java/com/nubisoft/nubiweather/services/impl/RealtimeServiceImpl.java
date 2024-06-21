@@ -1,5 +1,6 @@
 package com.nubisoft.nubiweather.services.impl;
 
+import com.nubisoft.nubiweather.Obfuscate;
 import com.nubisoft.nubiweather.models.BasicMessage;
 import com.nubisoft.nubiweather.models.CurrentWeather;
 import com.nubisoft.nubiweather.services.RealtimeService;
@@ -24,17 +25,26 @@ public class RealtimeServiceImpl implements RealtimeService {
     public Map<String, CurrentWeather> getCurrentWeatherForHamburgAndGliwice() {
         ResponseEntity<CurrentWeather> responseGliwice = restClient
                 .get()
-                .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", "**", "Gliwice", "no")
+                .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", Obfuscate.key, "Gliwice", "no")
                 .retrieve()
                 .toEntity(CurrentWeather.class);
         ResponseEntity<CurrentWeather> responseHamburg = restClient
                 .get()
-                .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", "**", "Hamburg", "no")
+                .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", Obfuscate.key, "Hamburg", "no")
                 .retrieve()
                 .toEntity(CurrentWeather.class);
         Map<String, CurrentWeather> combined = new HashMap<>();
         combined.put("Gliwice", responseGliwice.getBody());
         combined.put("Hamburg", responseHamburg.getBody());
         return combined;
+    }
+
+    @Override
+    public ResponseEntity<CurrentWeather> getCurrentWeatherForCity(String cityName) {
+        return restClient
+                .get()
+                .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", Obfuscate.key, cityName, "no")
+                .retrieve()
+                .toEntity(CurrentWeather.class);
     }
 }
