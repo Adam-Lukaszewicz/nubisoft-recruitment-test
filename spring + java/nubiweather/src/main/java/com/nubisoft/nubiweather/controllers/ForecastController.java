@@ -19,7 +19,7 @@ public class ForecastController {
     }
 
     @GetMapping("/forecast-weather/")
-    Map<String, ForecastWeather> getForecastWeatherForSetCities() {
+    ResponseEntity<Map<String, ForecastWeather>> getForecastWeatherForSetCities() {
         return forecastService.getForecastWeatherForHamburgAndGliwice();
     }
 

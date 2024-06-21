@@ -6,6 +6,7 @@ import com.nubisoft.nubiweather.exceptions.WeatherAPIException;
 import com.nubisoft.nubiweather.exceptions.WeatherAPIExceptionHandler;
 import com.nubisoft.nubiweather.models.BasicMessage;
 import com.nubisoft.nubiweather.models.CurrentWeather;
+import com.nubisoft.nubiweather.models.ForecastWeather;
 import com.nubisoft.nubiweather.services.RealtimeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -29,7 +30,7 @@ public class RealtimeServiceImpl implements RealtimeService {
     }
 
     @Override
-    public Map<String, CurrentWeather> getCurrentWeatherForHamburgAndGliwice() throws WeatherAPIException {
+    public ResponseEntity<Map<String, CurrentWeather>> getCurrentWeatherForHamburgAndGliwice() throws WeatherAPIException {
         ResponseEntity<CurrentWeather> responseGliwice = restClient
                 .get()
                 .uri("/current.json?key={key}&q={cityName}&aqi={aqiBool}", Obfuscate.key, "Gliwice", "no")
@@ -63,7 +64,7 @@ public class RealtimeServiceImpl implements RealtimeService {
         Map<String, CurrentWeather> combined = new HashMap<>();
         combined.put("Gliwice", responseGliwice.getBody());
         combined.put("Hamburg", responseHamburg.getBody());
-        return combined;
+        return ResponseEntity.status(responseGliwice.getStatusCode()).body(combined);
     }
 
     @Override

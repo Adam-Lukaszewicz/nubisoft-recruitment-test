@@ -30,7 +30,7 @@ public class ForecastServiceImpl implements ForecastService {
     }
 
     @Override
-    public Map<String, ForecastWeather> getForecastWeatherForHamburgAndGliwice() {
+    public ResponseEntity<Map<String, ForecastWeather>> getForecastWeatherForHamburgAndGliwice() {
         ResponseEntity<ForecastWeather> responseGliwice = restClient
                 .get()
                 .uri("/forecast.json?key={key}&q={cityName}&aqi={aqiBool}&days={daysNumber}&alerts={alertsBool}", Obfuscate.key, "Gliwice", "no", 1, "no")
@@ -64,14 +64,14 @@ public class ForecastServiceImpl implements ForecastService {
         Map<String, ForecastWeather> combined = new HashMap<>();
         combined.put("Gliwice", responseGliwice.getBody());
         combined.put("Hamburg", responseHamburg.getBody());
-        return combined;
+        return ResponseEntity.status(responseGliwice.getStatusCode()).body(combined);
     }
 
     @Override
     public ResponseEntity<ForecastWeather> getForecastWeatherForCity(String cityName) {
         return restClient
                 .get()
-                .uri("/forecast.json?key={key}&q={cityName}&aqi={aqiBool}&days={daysNumber}&alerts={alertsBool}", Obfuscate.key, "", "no", 1, "no")
+                .uri("/forecast.json?key={key}&q={cityName}&aqi={aqiBool}&days={daysNumber}&alerts={alertsBool}", Obfuscate.key, cityName, "no", 1, "no")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     Map<String, Object> errorResponse = objectMapper.readValue(response.getBody(), Map.class);

@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Component
 public interface ForecastService {
-    Map<String, ForecastWeather> getForecastWeatherForHamburgAndGliwice();
+    ResponseEntity<Map<String, ForecastWeather>> getForecastWeatherForHamburgAndGliwice();
 
     ResponseEntity<ForecastWeather> getForecastWeatherForCity(String cityName);
 }
