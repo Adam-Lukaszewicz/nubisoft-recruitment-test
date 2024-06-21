@@ -8,6 +8,6 @@ import org.springframework.web.client.RestClient;
 public class ClientConfig {
     @Bean
     public RestClient restClient(){
-        return RestClient.builder().baseUrl("https://api.weatherapi.com/v1").build();
+        return RestClient.create("https://api.weatherapi.com/v1/");
     }
 }
