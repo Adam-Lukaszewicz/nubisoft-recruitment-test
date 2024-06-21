@@ -20,7 +20,7 @@ public class RealtimeController {
         this.realtimeService = realtimeService;
     }
 
-    @GetMapping("/realtime-weather/")
+    @GetMapping("/realtime-weather")
     public ResponseEntity<Map<String, CurrentWeather>> realtimeWeatherForSetCities() {
         return realtimeService.getCurrentWeatherForHamburgAndGliwice();
     }
