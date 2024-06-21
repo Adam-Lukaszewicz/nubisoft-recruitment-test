@@ -3,30 +3,31 @@ package com.nubisoft.nubiweather.services.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nubisoft.nubiweather.Obfuscate;
 import com.nubisoft.nubiweather.exceptions.WeatherAPIException;
-import com.nubisoft.nubiweather.models.CurrentWeather;
 import com.nubisoft.nubiweather.models.ForecastWeather;
+import com.nubisoft.nubiweather.models.entities.ForecastWeatherEntity;
+import com.nubisoft.nubiweather.repositories.ForecastRepository;
 import com.nubisoft.nubiweather.services.ForecastService;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ForecastServiceImpl implements ForecastService {
 
     private RestClient restClient;
     private ObjectMapper objectMapper;
+    private ForecastRepository forecastRepository;
 
-    public ForecastServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
+    public ForecastServiceImpl(RestClient restClient, ObjectMapper objectMapper, ForecastRepository forecastRepository) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
+        this.forecastRepository = forecastRepository;
     }
 
     @Override
@@ -61,6 +62,16 @@ public class ForecastServiceImpl implements ForecastService {
                     throw new WeatherAPIException(errorMessage.get("message").toString(), response.getStatusCode());
                 })
                 .toEntity(ForecastWeather.class);
+        if(responseGliwice.getBody() != null){
+            List forecasts = objectMapper.convertValue(responseGliwice.getBody().forecast().get("forecastday"), List.class);
+            ForecastWeatherEntity forecastWeather = new ForecastWeatherEntity(responseGliwice.getBody().location().get("name").toString(), responseGliwice.getBody().current().get("temp_c").toString(), forecasts.toArray().length);
+            forecastRepository.save(forecastWeather);
+        }
+        if(responseHamburg.getBody() != null){
+            List forecasts = objectMapper.convertValue(responseHamburg.getBody().forecast().get("forecastday"), List.class);
+            ForecastWeatherEntity forecastWeather = new ForecastWeatherEntity(responseHamburg.getBody().location().get("name").toString(), responseHamburg.getBody().current().get("temp_c").toString(), forecasts.toArray().length);
+            forecastRepository.save(forecastWeather);
+        }
         Map<String, ForecastWeather> combined = new HashMap<>();
         combined.put("Gliwice", responseGliwice.getBody());
         combined.put("Hamburg", responseHamburg.getBody());
@@ -69,7 +80,7 @@ public class ForecastServiceImpl implements ForecastService {
 
     @Override
     public ResponseEntity<ForecastWeather> getForecastWeatherForCity(String cityName) {
-        return restClient
+        ResponseEntity<ForecastWeather> responseCity = restClient
                 .get()
                 .uri("/forecast.json?key={key}&q={cityName}&aqi={aqiBool}&days={daysNumber}&alerts={alertsBool}", Obfuscate.key, cityName, "no", 1, "no")
                 .retrieve()
@@ -84,5 +95,11 @@ public class ForecastServiceImpl implements ForecastService {
                     throw new WeatherAPIException(errorMessage.get("message").toString(), response.getStatusCode());
                 })
                 .toEntity(ForecastWeather.class);
+        if(responseCity.getBody() != null){
+            List forecasts = objectMapper.convertValue(responseCity.getBody().forecast().get("forecastday"), List.class);
+            ForecastWeatherEntity forecastWeather = new ForecastWeatherEntity(responseCity.getBody().location().get("name").toString(), responseCity.getBody().current().get("temp_c").toString(), forecasts.toArray().length);
+            forecastRepository.save(forecastWeather);
+        }
+        return responseCity;
     }
 }
